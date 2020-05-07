@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 
 #this selection sort implementation was copied from https://jakevdp.github.io/PythonDataScienceHandbook/02.08-sorting.html
-from numpy.core import single
 def selection_sort(x):
     for i in range(len(x)):
         swap = i + np.argmin(x[i:])
@@ -97,5 +96,11 @@ def stochastic_gradient_descent(a, d, i, e, nbr_p, iteration):
     error_differential = 0
     for i in range(len(e_rms[1])):
         error_differential += e_rms[1][i]
+
+    final_parameters = ''
+    for i in range(len(theta_j)):
+        final_parameters += ' ' + str(theta_j[i])
+
+    print(final_parameters)
 
     return error_differential

@@ -5,8 +5,8 @@ import random as rnd
 
 def main():
     #initial parameters
-    alpha = 0.0535
-    degree = 13
+    alpha = 0.001
+    degree = 4
     interval = 0.5
     epochs = 6000
     nbr_points = 100
