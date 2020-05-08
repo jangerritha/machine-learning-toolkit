@@ -117,6 +117,7 @@ def stochastic_gradient_descent():#a, d, i, e, iteration):
     axs.scatter(blue_points[0], blue_points[1], color='blue')
     axs.plot(final_plot[0], final_plot[1], color="black")
     axs.plot(idle_plot[0], idle_plot[1], color="red")
+    fig.savefig('graph.png')
     fig.show()
 
     #error_differential = 0
