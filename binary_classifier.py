@@ -43,6 +43,14 @@ def stochastic_gradient_descent():#a, d, i, e, iteration):
         theta_j[i] = random.uniform(-interval, interval)
 
 
+    idle_plot = np.zeros((2, len(points[0])))
+    for i in range(len(points[0])):
+        solve = 0
+        solve = (theta_j[0] + theta_j[1] * points[0][i]) * (-1/theta_j[2])
+
+        idle_plot[0][i] = points[0][i]
+        idle_plot[1][i] = solve
+
     #e_rms = np.zeros((2, epochs))
     #execute SGD
     for x in range(epochs):
@@ -100,14 +108,15 @@ def stochastic_gradient_descent():#a, d, i, e, iteration):
         solve = 0
         solve = (theta_j[0] + theta_j[1] * points[0][i]) * (-1/theta_j[2])
 
-        #final_plot[0][i] = points[0][i]
-        #final_plot[1][i] = solve
+        final_plot[0][i] = points[0][i]
+        final_plot[1][i] = solve
 
     #plot all
     fig, axs = plt.subplots(1)
     axs.scatter(green_points[0], green_points[1], color='green')
     axs.scatter(blue_points[0], blue_points[1], color='blue')
     axs.plot(final_plot[0], final_plot[1], color="black")
+    axs.plot(idle_plot[0], idle_plot[1], color="red")
     fig.show()
 
     #error_differential = 0
