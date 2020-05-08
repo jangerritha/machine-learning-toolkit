@@ -57,9 +57,9 @@ def stochastic_gradient_descent():#a, d, i, e, iteration):
             #print('Iteration: ' + str(x) + ' ' + str(error))
             mean_error += error
             point_s = np.zeros(2)
-            for k in range(len(theta_j)):
-                theta_j[k] = theta_j[k] + alpha * error * points[0][i]
-                theta_j[k] = theta_j[k] + alpha * error * points[1][i]
+            theta_j[0] = theta_j[0] + alpha * error * 1.0
+            theta_j[1] = theta_j[1] + alpha * error * points[0][i]
+            theta_j[2] = theta_j[2] + alpha * error * points[1][i]
 
             #print(str(theta_j))
 
