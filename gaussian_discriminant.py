@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from imageio import imread
 
 
 #this selection sort implementation was copied from https://jakevdp.github.io/PythonDataScienceHandbook/02.08-sorting.html
@@ -12,21 +13,108 @@ def selection_sort(x):
 #--------------------------------------------------
 
 
-def read_points():
-    data_f = open('data/assignment2/data.txt', 'r')
-    data_list = data_f.readlines()
-    points = np.ones((3, len(data_list)))
-    for i in range(len(data_list)):
-        values = data_list[i].split()
-        points[0][i] = values[0]
-        points[1][i] = values[1]
-        points[2][i] = values[2]
+def create_data():
+    negatives = []
+    positives = []
 
-    return points
+    for i in range(30):
+        path = 'data/assignment3/negatives/n'
+        if i < 9:
+            path += '0'
+        negatives.append(imread(path + str(i + 1) + '.png'))
+
+    for i in range(30):
+        path = 'data/assignment3/positives/p'
+        if i < 9:
+            path += '0'
+        positives.append(imread(path + str(i + 1) + '.png'))
+
+    return [negatives, positives]
+
+
+def calculate_min_values(data):
+    negatives = data[0]
+    positives = data[1]
+
+    n_min_vals = np.zeros((30, 3))
+
+    for i in range(30):
+        temp_red = np.zeros((24, 24))
+        temp_green = np.zeros((24, 24))
+        temp_blue = np.zeros((24, 24))
+
+        for k in range(24):
+            for n in range(24):
+                temp_red[k][n] = negatives[i][k][n][0]
+                temp_green[k][n] = negatives[i][k][n][1]
+                temp_blue[k][n] = negatives[i][k][n][2]
+
+        n_min_vals[i][0] = min(temp_red.flatten())
+        n_min_vals[i][1] = min(temp_green.flatten())
+        n_min_vals[i][2] = min(temp_blue.flatten())
+
+    p_min_vals = np.zeros((30, 3))
+
+    for i in range(30):
+        temp_red = np.zeros((24, 24))
+        temp_green = np.zeros((24, 24))
+        temp_blue = np.zeros((24, 24))
+
+        for k in range(24):
+            for n in range(24):
+                temp_red[k][n] = positives[i][k][n][0]
+                temp_green[k][n] = positives[i][k][n][1]
+                temp_blue[k][n] = positives[i][k][n][2]
+
+        p_min_vals[i][0] = min(temp_red.flatten())
+        p_min_vals[i][1] = min(temp_green.flatten())
+        p_min_vals[i][2] = min(temp_blue.flatten())
+
+    return [n_min_vals, p_min_vals]
+
+
+def calculate_avg_values(data):
+    negatives = data[0]
+    positives = data[1]
+
+    n_avg_vals = np.zeros((30, 3))
+
+    for i in range(30):
+        temp_red = np.zeros((24, 24))
+        temp_green = np.zeros((24, 24))
+        temp_blue = np.zeros((24, 24))
+
+        for k in range(24):
+            for n in range(24):
+                temp_red[k][n] = negatives[i][k][n][0]
+                temp_green[k][n] = negatives[i][k][n][1]
+                temp_blue[k][n] = negatives[i][k][n][2]
+
+        n_avg_vals[i][0] = sum(temp_red.flatten()) / len(temp_red.flatten())
+        n_avg_vals[i][1] = sum(temp_green.flatten()) / len(temp_green.flatten())
+        n_avg_vals[i][2] = sum(temp_blue.flatten()) / len(temp_blue.flatten())
+
+    p_avg_vals = np.zeros((30, 3))
+
+    for i in range(30):
+        temp_red = np.zeros((24, 24))
+        temp_green = np.zeros((24, 24))
+        temp_blue = np.zeros((24, 24))
+
+        for k in range(24):
+            for n in range(24):
+                temp_red[k][n] = positives[i][k][n][0]
+                temp_green[k][n] = positives[i][k][n][1]
+                temp_blue[k][n] = positives[i][k][n][2]
+
+        p_avg_vals[i][0] = sum(temp_red.flatten()) / len(temp_red.flatten())
+        p_avg_vals[i][1] = sum(temp_green.flatten()) / len(temp_green.flatten())
+        p_avg_vals[i][2] = sum(temp_blue.flatten()) / len(temp_blue.flatten())
+
+    return [n_avg_vals, p_avg_vals]
 
 
 #stochastic gradient descend
-
 def stochastic_gradient_descent():#a, d, i, e, iteration):
     #parameters
     alpha = 0.1
@@ -35,7 +123,11 @@ def stochastic_gradient_descent():#a, d, i, e, iteration):
     epochs = 6000
 
     # create random points
-    points = read_points()
+    data = create_data()
+    min_vals = calculate_min_values(data)
+    avg_vals = calculate_avg_values(data)
+
+    quit(0)
 
     #generate random parameters
     theta_j = np.ones(degree + 1)
