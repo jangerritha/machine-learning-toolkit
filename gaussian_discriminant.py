@@ -114,116 +114,110 @@ def calculate_avg_values(data):
     return [n_avg_vals, p_avg_vals]
 
 
-#stochastic gradient descend
-def stochastic_gradient_descent():#a, d, i, e, iteration):
+def calculate_average_for_col(col):
+    col_1 = 0
+    col_2 = 0
+    col_3 = 0
+    for i in range(len(col[0])):
+        col_1 += col[0][i]
+        col_2 += col[1][i]
+        col_3 += col[2][i]
+
+    col_1 = col_1 / len(col[0])
+    col_2 = col_2 / len(col[0])
+    col_3 = col_3 / len(col[0])
+
+    return [col_1, col_2, col_3]
+
+
+def gaussian_discriminant():
     #parameters
     alpha = 0.1
     degree = 2 #fixed
     interval = 0.01
     epochs = 6000
 
-    # create random points
+    # create data as 24x24x3 matrixes from images
     data = create_data()
+
+    #calculate min rgb values for every image
     min_vals = calculate_min_values(data)
+
+    # calculate average rgb values for every image
     avg_vals = calculate_avg_values(data)
 
-    quit(0)
+    # ----------------- calculate parameters ----------------------
+    #calculate phi
+    m = 60
+    phi = 30/m
 
-    #generate random parameters
-    theta_j = np.ones(degree + 1)
-    for i in range(len(theta_j)):
-        theta_j[i] = random.uniform(-interval, interval)
+    #calculate mu_1 for positive (1)
+    mu_1_mean = np.zeros(6)
 
-
-    idle_plot = np.zeros((2, len(points[0])))
-    for i in range(len(points[0])):
-        solve = 0
-        solve = (theta_j[0] + theta_j[1] * points[0][i]) * (-1/theta_j[2])
-
-        idle_plot[0][i] = points[0][i]
-        idle_plot[1][i] = solve
-
-    e_rms = np.zeros((2, epochs))
     #execute SGD
-    for x in range(epochs):
-        #iterate all data points
-        mean_error = 0
-        for i in range(len(points[0])):
-            #solve
-            solve = theta_j[0] + theta_j[1] * points[0][i] + theta_j[2] * points[1][i]
+    min_mean_return = calculate_average_for_col(min_vals[1])
+    mu_1_mean[0] = min_mean_return[0]
+    mu_1_mean[1] = min_mean_return[1]
+    mu_1_mean[2] = min_mean_return[2]
+    avg_mean_return = calculate_average_for_col(avg_vals[1])
+    mu_1_mean[3] = min_mean_return[0]
+    mu_1_mean[4] = min_mean_return[1]
+    mu_1_mean[5] = min_mean_return[2]
 
-            #calculate error
-            error = points[2][i] - 1/(1 + np.e ** (-solve))
-            #print('Iteration: ' + str(x) + ' ' + str(error))
-            mean_error += error
-            point_s = np.zeros(2)
-            theta_j[0] = theta_j[0] + alpha * error * 1.0
-            theta_j[1] = theta_j[1] + alpha * error * points[0][i]
-            theta_j[2] = theta_j[2] + alpha * error * points[1][i]
+    #print(mu_1_mean)
 
-            #print(str(theta_j))
+    # calculate mu_0 for negative (0)
+    mu_0_mean = np.zeros(6)
 
-        #e_rms[0][x] = x
-        print(str(mean_error / len(points[0])))
+    # execute SGD
+    min_mean_return = calculate_average_for_col(min_vals[0])
+    mu_0_mean[0] = min_mean_return[0]
+    mu_0_mean[1] = min_mean_return[1]
+    mu_0_mean[2] = min_mean_return[2]
+    avg_mean_return = calculate_average_for_col(avg_vals[0])
+    mu_0_mean[3] = min_mean_return[0]
+    mu_0_mean[4] = min_mean_return[1]
+    mu_0_mean[5] = min_mean_return[2]
 
+    #print(mu_0_mean)
+
+
+    #calculate temp vector
+    tmp_vector = np.zeros((60, 6))
+
+    for i in range(30):
+        tmp_vector[i][0] += min_vals[1][i][0] - mu_1_mean[0]
+        tmp_vector[i][1] += min_vals[1][i][1] - mu_1_mean[1]
+        tmp_vector[i][2] += min_vals[1][i][2] - mu_1_mean[2]
+        tmp_vector[i][3] += avg_vals[1][i][0] - mu_1_mean[3]
+        tmp_vector[i][4] += avg_vals[1][i][1] - mu_1_mean[4]
+        tmp_vector[i][5] += avg_vals[1][i][2] - mu_1_mean[5]
+
+    for i in range(30):
+        tmp_vector[i+30][0] += min_vals[0][i][0] - mu_0_mean[0]
+        tmp_vector[i+30][1] += min_vals[0][i][1] - mu_0_mean[1]
+        tmp_vector[i+30][2] += min_vals[0][i][2] - mu_0_mean[2]
+        tmp_vector[i+30][3] += avg_vals[0][i][0] - mu_0_mean[3]
+        tmp_vector[i+30][4] += avg_vals[0][i][1] - mu_0_mean[4]
+        tmp_vector[i+30][5] += avg_vals[0][i][2] - mu_0_mean[5]
+
+    sigma = np.zeros(6)
+
+    for x in range(6):
+        temp_val = 0
+        for i in range(60):
+            temp_val += tmp_vector[i][x]*tmp_vector
+
+
+    print(str(tmp_vector))
     #calculate approximation graph for plot
-    final_plot = np.zeros(len(points[0]))
-    for i in range(len(points[0])):
-        solve_polynom = 0
-        for k in range(degree + 1):
-            solve_polynom += theta_j[k] * points[0][i] ** k
-
-        final_plot[i] = solve_polynom
-
-    sinus_plot = np.zeros((2, 100))
-
-    for i in range(len(sinus_plot[0])):
-        sinus_plot[0][i] = 0.01 * i
-        sinus_plot[1][i] = np.sin(2 * np.pi * sinus_plot[0][i])
-
-    blue_points = np.zeros((2, 50))
-    green_points = np.zeros((2, 50))
-
-    for i in range(len(points[0])):
-        if i < 50:
-            blue_points[0][i] = points[0][i]
-            blue_points[1][i] = points[1][i]
-        else:
-            x = i
-            x -= 50
-            green_points[0][x] = points[0][i]
-            green_points[1][x] = points[1][i]
-
-    final_plot = np.zeros((2, len(points[0])))
-    #temp_points = selection_sort(points[0])
-    for i in range(len(points[0])):
-        solve = 0
-        solve = (theta_j[0] + theta_j[1] * points[0][i]) * (-1/theta_j[2])
-
-        final_plot[0][i] = points[0][i]
-        final_plot[1][i] = solve
 
     #plot all
     fig, axs = plt.subplots(1)
-    axs.scatter(green_points[0], green_points[1], color='green')
-    axs.scatter(blue_points[0], blue_points[1], color='blue')
-    axs.plot(final_plot[0], final_plot[1], color="black")
-    axs.plot(idle_plot[0], idle_plot[1], color="red")
     fig.savefig('graph.png')
     fig.show()
 
-    #error_differential = 0
-    #for i in range(len(e_rms[1])):
-        #error_differential += e_rms[1][i]
-
-    final_parameters = ''
-    for i in range(len(theta_j)):
-        final_parameters += ' ' + str(theta_j[i])
-
-    print(final_parameters)
-
-    #return error_differential
 
 
 if __name__ == '__main__':
-    stochastic_gradient_descent()
+    gaussian_discriminant()
