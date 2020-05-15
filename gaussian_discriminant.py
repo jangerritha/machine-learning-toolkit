@@ -160,9 +160,9 @@ def gaussian_discriminant():
     mu_1_mean[1] = min_mean_return[1]
     mu_1_mean[2] = min_mean_return[2]
     avg_mean_return = calculate_average_for_col(avg_vals[1])
-    mu_1_mean[3] = min_mean_return[0]
-    mu_1_mean[4] = min_mean_return[1]
-    mu_1_mean[5] = min_mean_return[2]
+    mu_1_mean[3] = avg_mean_return[0]
+    mu_1_mean[4] = avg_mean_return[1]
+    mu_1_mean[5] = avg_mean_return[2]
 
     #print(mu_1_mean)
 
@@ -175,9 +175,9 @@ def gaussian_discriminant():
     mu_0_mean[1] = min_mean_return[1]
     mu_0_mean[2] = min_mean_return[2]
     avg_mean_return = calculate_average_for_col(avg_vals[0])
-    mu_0_mean[3] = min_mean_return[0]
-    mu_0_mean[4] = min_mean_return[1]
-    mu_0_mean[5] = min_mean_return[2]
+    mu_0_mean[3] = avg_mean_return[0]
+    mu_0_mean[4] = avg_mean_return[1]
+    mu_0_mean[5] = avg_mean_return[2]
 
     #print(mu_0_mean)
 
@@ -206,7 +206,7 @@ def gaussian_discriminant():
     for x in range(6):
         temp_val = 0
         for i in range(60):
-            temp_val += tmp_vector[i][x]*tmp_vector
+            temp_val += tmp_vector[i][x]* tmp_vector
 
 
     print(str(tmp_vector))
