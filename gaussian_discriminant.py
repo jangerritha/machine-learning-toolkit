@@ -4,15 +4,6 @@ import matplotlib.pyplot as plt
 from imageio import imread
 
 
-#this selection sort implementation was copied from https://jakevdp.github.io/PythonDataScienceHandbook/02.08-sorting.html
-def selection_sort(x):
-    for i in range(len(x)):
-        swap = i + np.argmin(x[i:])
-        (x[i], x[swap]) = (x[swap], x[i])
-    return x
-#--------------------------------------------------
-
-
 def create_data():
     negatives = []
     positives = []
@@ -201,15 +192,56 @@ def gaussian_discriminant():
         tmp_vector[i+30][4] += avg_vals[0][i][1] - mu_0_mean[4]
         tmp_vector[i+30][5] += avg_vals[0][i][2] - mu_0_mean[5]
 
-    sigma = np.zeros(6)
-
-    for x in range(6):
-        temp_val = 0
-        for i in range(60):
-            temp_val += tmp_vector[i][x]* tmp_vector
+    #print(str(tmp_vector[0]))
+    #print(str(tmp_vector[0].transpose(0)))
 
 
-    print(str(tmp_vector))
+    #critical ----
+    sigma = 0
+    for i in range(60):
+        sigma += np.outer(tmp_vector[i], tmp_vector[i].transpose())
+
+    sigma = sigma / m
+
+    print(str(sigma))
+
+    determinante = np.linalg.det(sigma)
+
+    print(determinante)
+
+    for i in range(30):
+        x_val = np.zeros((1, 6))
+        x_val[0][0] = min_vals[0][i][0]
+        x_val[0][1] = min_vals[0][i][1]
+        x_val[0][2] = min_vals[0][i][2]
+        x_val[0][3] = avg_vals[0][i][0]
+        x_val[0][4] = avg_vals[0][i][1]
+        x_val[0][5] = avg_vals[0][i][2]
+
+        probability_base = 1/((2 * np.pi)**3 * determinante**(1/2))
+        probability = probability_base * np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
+                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma)))
+
+        #print(probability)
+
+    for i in range(30):
+        x_val = np.zeros((1, 6))
+        x_val[0][0] = min_vals[1][i][0]
+        x_val[0][1] = min_vals[1][i][1]
+        x_val[0][2] = min_vals[1][i][2]
+        x_val[0][3] = avg_vals[1][i][0]
+        x_val[0][4] = avg_vals[1][i][1]
+        x_val[0][5] = avg_vals[1][i][2]
+
+        probability_base = 1 / ((2 * np.pi) ** 3 * determinante ** (1 / 2))
+        probability = probability_base * np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
+                                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma)))
+
+        print(probability)
+
+    #print(str(sigma))
+
+    #print(str(tmp_vector))
     #calculate approximation graph for plot
 
     #plot all
