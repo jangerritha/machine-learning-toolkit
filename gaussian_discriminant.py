@@ -225,11 +225,12 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[0][i][1]
         x_val[0][5] = avg_vals[0][i][2]
 
-        probability_base = 1/((2 * np.pi)**3 * determinante_0 **(1/2))
+        probability_base_0 = 1/((2 * np.pi)**3 * determinante_0 **(1/2))
+        probability_base_1 = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
 
-        p_y_0 = probability_base * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
+        p_y_0 = probability_base_0 * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
                                                                   np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
-        p_y_1 = probability_base * np.sum(np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
+        p_y_1 = probability_base_1 * np.sum(np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
                                                       np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
 
         p_0 = (p_y_0 * 0.5)/(p_y_0 * 0.5) * (p_y_1 * 0.5)
@@ -250,12 +251,13 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[1][i][1]
         x_val[0][5] = avg_vals[1][i][2]
 
-        probability_base = 1 / ((2 * np.pi) ** 3 * determinante_0 ** (1 / 2))
+        probability_base_0 = 1 / ((2 * np.pi) ** 3 * determinante_0 ** (1 / 2))
+        probability_base_1 = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
 
-        p_y_0 = probability_base * np.sum(
+        p_y_0 = probability_base_0 * np.sum(
             np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
                                                       np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
-        p_y_1 = probability_base * np.sum(
+        p_y_1 = probability_base_1 * np.sum(
             np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
                                                       np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
 
