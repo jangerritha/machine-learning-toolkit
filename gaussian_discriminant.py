@@ -174,40 +174,47 @@ def gaussian_discriminant():
 
 
     #calculate temp vector
-    tmp_vector = np.zeros((60, 6))
+    tmp_vector_mu1 = np.zeros((30, 6))
 
     for i in range(30):
-        tmp_vector[i][0] += min_vals[1][i][0] - mu_1_mean[0]
-        tmp_vector[i][1] += min_vals[1][i][1] - mu_1_mean[1]
-        tmp_vector[i][2] += min_vals[1][i][2] - mu_1_mean[2]
-        tmp_vector[i][3] += avg_vals[1][i][0] - mu_1_mean[3]
-        tmp_vector[i][4] += avg_vals[1][i][1] - mu_1_mean[4]
-        tmp_vector[i][5] += avg_vals[1][i][2] - mu_1_mean[5]
+        tmp_vector_mu1[i][0] += min_vals[1][i][0] - mu_1_mean[0]
+        tmp_vector_mu1[i][1] += min_vals[1][i][1] - mu_1_mean[1]
+        tmp_vector_mu1[i][2] += min_vals[1][i][2] - mu_1_mean[2]
+        tmp_vector_mu1[i][3] += avg_vals[1][i][0] - mu_1_mean[3]
+        tmp_vector_mu1[i][4] += avg_vals[1][i][1] - mu_1_mean[4]
+        tmp_vector_mu1[i][5] += avg_vals[1][i][2] - mu_1_mean[5]
+
+    tmp_vector_mu0 = np.zeros((30, 6))
 
     for i in range(30):
-        tmp_vector[i+30][0] += min_vals[0][i][0] - mu_0_mean[0]
-        tmp_vector[i+30][1] += min_vals[0][i][1] - mu_0_mean[1]
-        tmp_vector[i+30][2] += min_vals[0][i][2] - mu_0_mean[2]
-        tmp_vector[i+30][3] += avg_vals[0][i][0] - mu_0_mean[3]
-        tmp_vector[i+30][4] += avg_vals[0][i][1] - mu_0_mean[4]
-        tmp_vector[i+30][5] += avg_vals[0][i][2] - mu_0_mean[5]
+        tmp_vector_mu0[i][0] += min_vals[0][i][0] - mu_0_mean[0]
+        tmp_vector_mu0[i][1] += min_vals[0][i][1] - mu_0_mean[1]
+        tmp_vector_mu0[i][2] += min_vals[0][i][2] - mu_0_mean[2]
+        tmp_vector_mu0[i][3] += avg_vals[0][i][0] - mu_0_mean[3]
+        tmp_vector_mu0[i][4] += avg_vals[0][i][1] - mu_0_mean[4]
+        tmp_vector_mu0[i][5] += avg_vals[0][i][2] - mu_0_mean[5]
 
     #print(str(tmp_vector[0]))
     #print(str(tmp_vector[0].transpose(0)))
 
 
     #critical ----
-    sigma = 0
-    for i in range(60):
-        sigma += np.outer(tmp_vector[i], tmp_vector[i].transpose())
+    sigma_0 = 0
+    sigma_1 = 0
+    for i in range(30):
+        sigma_0 += 1/m * np.outer(tmp_vector_mu1[i], tmp_vector_mu1[i].transpose())
 
-    sigma = sigma / m
+    for i in range(30):
+        sigma_1 += 1/m * np.outer(tmp_vector_mu0[i], tmp_vector_mu0[i].transpose())
 
-    print(str(sigma))
+    #print(str(sigma_0))
+    #print(str(sigma_1))
 
-    determinante = np.linalg.det(sigma)
+    determinante_0 = np.linalg.det(sigma_0)
+    determinante_1 = np.linalg.det(sigma_1)
 
-    print(determinante)
+    #print(np.sqrt(determinante_0))
+    #print(np.sqrt(determinante_1))
 
     for i in range(30):
         x_val = np.zeros((1, 6))
@@ -218,10 +225,11 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[0][i][1]
         x_val[0][5] = avg_vals[0][i][2]
 
-        probability_base = 1/((2 * np.pi)**3 * determinante**(1/2))
+        probability_base = 1/((2 * np.pi)**3 * determinante_0 **(1/2))
         probability = probability_base * np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma)))
-
+                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0)))
+        if i == 25: print(str(probability_base * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
+                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))))
         #print(probability)
 
     for i in range(30):
@@ -233,11 +241,11 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[1][i][1]
         x_val[0][5] = avg_vals[1][i][2]
 
-        probability_base = 1 / ((2 * np.pi) ** 3 * determinante ** (1 / 2))
+        probability_base = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
         probability = probability_base * np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
-                                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma)))
+                                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1)))
 
-        print(probability)
+        #(probability)
 
     #print(str(sigma))
 
@@ -245,9 +253,9 @@ def gaussian_discriminant():
     #calculate approximation graph for plot
 
     #plot all
-    fig, axs = plt.subplots(1)
-    fig.savefig('graph.png')
-    fig.show()
+    #fig, axs = plt.subplots(1)
+    #fig.savefig('graph.png')
+    #fig.show()
 
 
 
