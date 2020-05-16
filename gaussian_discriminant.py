@@ -202,10 +202,10 @@ def gaussian_discriminant():
     sigma_0 = 0
     sigma_1 = 0
     for i in range(30):
-        sigma_0 += 1/m * np.outer(tmp_vector_mu1[i], tmp_vector_mu1[i].transpose())
+        sigma_1 += 1/m * np.outer(tmp_vector_mu1[i], tmp_vector_mu1[i].transpose())
 
     for i in range(30):
-        sigma_1 += 1/m * np.outer(tmp_vector_mu0[i], tmp_vector_mu0[i].transpose())
+        sigma_0 += 1/m * np.outer(tmp_vector_mu0[i], tmp_vector_mu0[i].transpose())
 
     #print(str(sigma_0))
     #print(str(sigma_1))
@@ -226,11 +226,20 @@ def gaussian_discriminant():
         x_val[0][5] = avg_vals[0][i][2]
 
         probability_base = 1/((2 * np.pi)**3 * determinante_0 **(1/2))
-        probability = probability_base * np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0)))
-        if i == 25: print(str(probability_base * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))))
-        #print(probability)
+
+        p_y_0 = probability_base * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
+                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
+        p_y_1 = probability_base * np.sum(np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
+                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
+
+        p_0 = (p_y_0 * 0.5)/(p_y_0 * 0.5) * (p_y_1 * 0.5)
+
+        p_1 = (p_y_1 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
+
+        if p_0 > p_1:
+            print('Image ' + str(i) + ': no Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
+        else:
+            print('Image ' + str(i) + ': Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
 
     for i in range(30):
         x_val = np.zeros((1, 6))
@@ -241,16 +250,24 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[1][i][1]
         x_val[0][5] = avg_vals[1][i][2]
 
-        probability_base = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
-        probability = probability_base * np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
-                                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1)))
+        probability_base = 1 / ((2 * np.pi) ** 3 * determinante_0 ** (1 / 2))
 
-        #(probability)
+        p_y_0 = probability_base * np.sum(
+            np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
+                                                      np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
+        p_y_1 = probability_base * np.sum(
+            np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
+                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
 
-    #print(str(sigma))
+        p_0 = (p_y_0 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
 
-    #print(str(tmp_vector))
-    #calculate approximation graph for plot
+        p_1 = (p_y_1 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
+
+        if p_0 > p_1:
+            print('Image ' + str(i) + ': no Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
+        else:
+            print('Image ' + str(i) + ': Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
+        #print(probability)
 
     #plot all
     #fig, axs = plt.subplots(1)
