@@ -5,110 +5,68 @@ from imageio import imread
 
 
 def create_data():
-    negatives = []
-    positives = []
+    ret = []
+    strn_p = [ "negatives","positives",'n','p']
 
-    for i in range(30):
-        path = 'data/assignment3/negatives/n'
-        if i < 9:
-            path += '0'
-        negatives.append(imread(path + str(i + 1) + '.png'))
-
-    for i in range(30):
-        path = 'data/assignment3/positives/p'
-        if i < 9:
-            path += '0'
-        positives.append(imread(path + str(i + 1) + '.png'))
-
-    return [negatives, positives]
+    for n_p in range(0,2):
+        temp_n_p = []
+        for i in range(30):
+            path = "data/assignment3/"+strn_p[n_p]+'/'+strn_p[n_p+2]
+            if i < 9:
+                path += '0'
+            temp_n_p.append(imread(path + str(i + 1) + '.png'))
+        ret.append(temp_n_p)
+    return ret
 
 
 def calculate_min_values(data):
-    negatives = data[0]
-    positives = data[1]
+    ret = []
 
-    n_min_vals = np.zeros((30, 3))
+    for n_p in range(0,2):
+        temp_n_p = np.zeros((30,3))
+        for i in range(30):
+            temp_red  = np.zeros((24, 24))
+            temp_green = np.zeros((24, 24))
+            temp_blue = np.zeros((24, 24))
 
-    for i in range(30):
-        temp_red = np.zeros((24, 24))
-        temp_green = np.zeros((24, 24))
-        temp_blue = np.zeros((24, 24))
+            for k in range(24):
+                for n in range(24):
+                    temp_red[k][n], temp_green[k][n], temp_blue[k][n] = data[n_p][i][k][n]
 
-        for k in range(24):
-            for n in range(24):
-                temp_red[k][n] = negatives[i][k][n][0]
-                temp_green[k][n] = negatives[i][k][n][1]
-                temp_blue[k][n] = negatives[i][k][n][2]
+            temp_n_p[i][0] = min(temp_red.flatten())
+            temp_n_p[i][1] = min(temp_green.flatten())
+            temp_n_p[i][2] = min(temp_blue.flatten())
 
-        n_min_vals[i][0] = min(temp_red.flatten())
-        n_min_vals[i][1] = min(temp_green.flatten())
-        n_min_vals[i][2] = min(temp_blue.flatten())
+        ret.append(temp_n_p)
 
-    p_min_vals = np.zeros((30, 3))
-
-    for i in range(30):
-        temp_red = np.zeros((24, 24))
-        temp_green = np.zeros((24, 24))
-        temp_blue = np.zeros((24, 24))
-
-        for k in range(24):
-            for n in range(24):
-                temp_red[k][n] = positives[i][k][n][0]
-                temp_green[k][n] = positives[i][k][n][1]
-                temp_blue[k][n] = positives[i][k][n][2]
-
-        p_min_vals[i][0] = min(temp_red.flatten())
-        p_min_vals[i][1] = min(temp_green.flatten())
-        p_min_vals[i][2] = min(temp_blue.flatten())
-
-    return [n_min_vals, p_min_vals]
+    return ret
 
 
 def calculate_avg_values(data):
-    negatives = data[0]
-    positives = data[1]
+    ret = []
 
-    n_avg_vals = np.zeros((30, 3))
+    for n_p in range(0,2):
+        temp_n_p = np.zeros((30,3))
+        for i in range(30):
+            temp_red = np.zeros((24, 24))
+            temp_green = np.zeros((24, 24))
+            temp_blue = np.zeros((24, 24))
 
-    for i in range(30):
-        temp_red = np.zeros((24, 24))
-        temp_green = np.zeros((24, 24))
-        temp_blue = np.zeros((24, 24))
+            for k in range(24):
+                for n in range(24):
+                    temp_red[k][n], temp_green[k][n], temp_blue[k][n] = data[n_p][i][k][n]
 
-        for k in range(24):
-            for n in range(24):
-                temp_red[k][n] = negatives[i][k][n][0]
-                temp_green[k][n] = negatives[i][k][n][1]
-                temp_blue[k][n] = negatives[i][k][n][2]
+            temp_n_p[i][0] = sum(temp_red.flatten()) / len(temp_red.flatten())
+            temp_n_p[i][1] = sum(temp_green.flatten()) / len(temp_green.flatten())
+            temp_n_p[i][2] = sum(temp_blue.flatten()) / len(temp_blue.flatten())
 
-        n_avg_vals[i][0] = sum(temp_red.flatten()) / len(temp_red.flatten())
-        n_avg_vals[i][1] = sum(temp_green.flatten()) / len(temp_green.flatten())
-        n_avg_vals[i][2] = sum(temp_blue.flatten()) / len(temp_blue.flatten())
+        ret.append(temp_n_p)
 
-    p_avg_vals = np.zeros((30, 3))
-
-    for i in range(30):
-        temp_red = np.zeros((24, 24))
-        temp_green = np.zeros((24, 24))
-        temp_blue = np.zeros((24, 24))
-
-        for k in range(24):
-            for n in range(24):
-                temp_red[k][n] = positives[i][k][n][0]
-                temp_green[k][n] = positives[i][k][n][1]
-                temp_blue[k][n] = positives[i][k][n][2]
-
-        p_avg_vals[i][0] = sum(temp_red.flatten()) / len(temp_red.flatten())
-        p_avg_vals[i][1] = sum(temp_green.flatten()) / len(temp_green.flatten())
-        p_avg_vals[i][2] = sum(temp_blue.flatten()) / len(temp_blue.flatten())
-
-    return [n_avg_vals, p_avg_vals]
+    return ret
 
 
 def calculate_average_for_col(col):
-    col_1 = 0
-    col_2 = 0
-    col_3 = 0
+    col_1 = col_2 = col_3 = 0
     for i in range(len(col[0])):
         col_1 += col[0][i]
         col_2 += col[1][i]
@@ -147,13 +105,9 @@ def gaussian_discriminant():
 
     #execute SGD
     min_mean_return = calculate_average_for_col(min_vals[1])
-    mu_1_mean[0] = min_mean_return[0]
-    mu_1_mean[1] = min_mean_return[1]
-    mu_1_mean[2] = min_mean_return[2]
+    mu_1_mean[0:3] = min_mean_return
     avg_mean_return = calculate_average_for_col(avg_vals[1])
-    mu_1_mean[3] = avg_mean_return[0]
-    mu_1_mean[4] = avg_mean_return[1]
-    mu_1_mean[5] = avg_mean_return[2]
+    mu_1_mean[3:6] = avg_mean_return
 
     #print(mu_1_mean)
 
@@ -162,13 +116,9 @@ def gaussian_discriminant():
 
     # execute SGD
     min_mean_return = calculate_average_for_col(min_vals[0])
-    mu_0_mean[0] = min_mean_return[0]
-    mu_0_mean[1] = min_mean_return[1]
-    mu_0_mean[2] = min_mean_return[2]
+    mu_0_mean[0:3] = min_mean_return
     avg_mean_return = calculate_average_for_col(avg_vals[0])
-    mu_0_mean[3] = avg_mean_return[0]
-    mu_0_mean[4] = avg_mean_return[1]
-    mu_0_mean[5] = avg_mean_return[2]
+    mu_0_mean[3:6] = avg_mean_return
 
     #print(mu_0_mean)
 
@@ -229,9 +179,9 @@ def gaussian_discriminant():
         probability_base_1 = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
 
         p_y_0 = probability_base_0 * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-                                                                  np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
+            np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
         p_y_1 = probability_base_1 * np.sum(np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
-                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
+            np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
 
         p_0 = (p_y_0 * 0.5)/(p_y_0 * 0.5) * (p_y_1 * 0.5)
 
@@ -255,11 +205,11 @@ def gaussian_discriminant():
         probability_base_1 = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
 
         p_y_0 = probability_base_0 * np.sum(
-            np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-                                                      np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
+                np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
+                    np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
         p_y_1 = probability_base_1 * np.sum(
-            np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
-                                                      np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
+                np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
+                    np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
 
         p_0 = (p_y_0 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
 
