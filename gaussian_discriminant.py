@@ -128,134 +128,116 @@ def gaussian_discriminant():
 
 
     #calculate temp vector
-    tmp_vector_mu1 = np.zeros((30, 6))
+    tmp_vector_mu1 = []
 
     for i in range(30):
-        tmp_vector_mu1[i][0] += min_vals[1][i][0] - mu_1_mean[0]
-        tmp_vector_mu1[i][1] += min_vals[1][i][1] - mu_1_mean[1]
-        tmp_vector_mu1[i][2] += min_vals[1][i][2] - mu_1_mean[2]
-        tmp_vector_mu1[i][3] += avg_vals[1][i][0] - mu_1_mean[3]
-        tmp_vector_mu1[i][4] += avg_vals[1][i][1] - mu_1_mean[4]
-        tmp_vector_mu1[i][5] += avg_vals[1][i][2] - mu_1_mean[5]
+        f_0 = min_vals[1][i][0] - mu_1_mean[0]
+        f_1 = min_vals[1][i][1] - mu_1_mean[1]
+        f_2 = min_vals[1][i][2] - mu_1_mean[2]
+        f_3 = avg_vals[1][i][0] - mu_1_mean[3]
+        f_4 = avg_vals[1][i][1] - mu_1_mean[4]
+        f_5 = avg_vals[1][i][2] - mu_1_mean[5]
+        tmp_vector_mu1.append([f_0, f_1, f_2, f_3, f_4, f_5])
 
-    tmp_vector_mu0 = np.zeros((30, 6))
+    tmp_vector_mu0 = []
 
     for i in range(30):
-        tmp_vector_mu0[i][0] += min_vals[0][i][0] - mu_0_mean[0]
-        tmp_vector_mu0[i][1] += min_vals[0][i][1] - mu_0_mean[1]
-        tmp_vector_mu0[i][2] += min_vals[0][i][2] - mu_0_mean[2]
-        tmp_vector_mu0[i][3] += avg_vals[0][i][0] - mu_0_mean[3]
-        tmp_vector_mu0[i][4] += avg_vals[0][i][1] - mu_0_mean[4]
-        tmp_vector_mu0[i][5] += avg_vals[0][i][2] - mu_0_mean[5]
+        f_0 = min_vals[0][i][0] - mu_0_mean[0]
+        f_1 = min_vals[0][i][1] - mu_0_mean[1]
+        f_2 = min_vals[0][i][2] - mu_0_mean[2]
+        f_3 = avg_vals[0][i][0] - mu_0_mean[3]
+        f_4 = avg_vals[0][i][1] - mu_0_mean[4]
+        f_5 = avg_vals[0][i][2] - mu_0_mean[5]
+        tmp_vector_mu0.append([f_0, f_1, f_2, f_3, f_4, f_5])
 
     #print(str(tmp_vector[0]))
     #print(str(tmp_vector[0].transpose(0)))
 
 
     #critical ----
-    sigma_0 = 0
-    sigma_1 = 0
-    for i in range(30):
-        sigma_1 += 1/m * np.outer(tmp_vector_mu1[i], tmp_vector_mu1[i].transpose())
+    #sigma_0 = 0
+    #sigma_1 = 0
+    sigma = 0
+    for i in range(60):
+        #print('print' + str(i) + str(np.reshape(tmp_vector_mu1[i], (1,6))))
+        #print('print' + str(i) + str(np.reshape(tmp_vector_mu1[i], (1,6)).transpose()))
+        #print('print' + str(i) + str(np.matmul(np.reshape(tmp_vector_mu1[i], (1, 6)).transpose(), np.reshape(tmp_vector_mu1[i], (1, 6)))))
+        if i < 30:
+            sigma += (1/m) * np.matmul(np.reshape(tmp_vector_mu1[i], (1, 6)).transpose(), np.reshape(tmp_vector_mu1[i], (1, 6)))
+        else:
+            sigma += (1 / m) * np.matmul(np.reshape(tmp_vector_mu0[i - 30], (1, 6)).transpose(), np.reshape(tmp_vector_mu0[i - 30], (1, 6)))
 
-    for i in range(30):
-        sigma_0 += 1/m * np.outer(tmp_vector_mu0[i], tmp_vector_mu0[i].transpose())
+    #for i in range(30):
+        #sigma_0 += (1/m) * np.matmul(np.reshape(tmp_vector_mu0[i], (1, 6)).transpose(), np.reshape(tmp_vector_mu0[i], (1, 6)))
 
     #print(str(sigma_0))
     #print(str(sigma_1))
 
-    determinante_0 = np.linalg.det(sigma_0)
-    determinante_1 = np.linalg.det(sigma_1)
+    determinante = np.linalg.det(sigma)
+    #determinante_1 = np.linalg.det(sigma_1)
 
-    print(np.sqrt(determinante_0))
-    print(np.sqrt(determinante_1))
+    #print(np.sqrt(determinante_0))
+    #print(np.sqrt(determinante_1))
 
-    for i in range(30):
+    for i in range(60):
         x_val = np.zeros((1, 6))
-        x_val[0][0] = min_vals[0][i][0]
-        x_val[0][1] = min_vals[0][i][1]
-        x_val[0][2] = min_vals[0][i][2]
-        x_val[0][3] = avg_vals[0][i][0]
-        x_val[0][4] = avg_vals[0][i][1]
-        x_val[0][5] = avg_vals[0][i][2]
+        if i < 30:
+            x_val[0][0] = min_vals[0][i][0]
+            x_val[0][1] = min_vals[0][i][1]
+            x_val[0][2] = min_vals[0][i][2]
+            x_val[0][3] = avg_vals[0][i][0]
+            x_val[0][4] = avg_vals[0][i][1]
+            x_val[0][5] = avg_vals[0][i][2]
+        else:
+            x_val[0][0] = min_vals[1][i - 30][0]
+            x_val[0][1] = min_vals[1][i - 30][1]
+            x_val[0][2] = min_vals[1][i - 30][2]
+            x_val[0][3] = avg_vals[1][i - 30][0]
+            x_val[0][4] = avg_vals[1][i - 30][1]
+            x_val[0][5] = avg_vals[1][i - 30][2]
 
-        probability_base_0 = 1/((2 * np.pi)**3 * np.sqrt(determinante_0))
-        probability_base_1 = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante_1))
-
-        #print(probability_base_0)
-        #print(probability_base_1)
+        probability_base = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante))
 
         x_min_mu0 = np.subtract(x_val, mu_0_mean)
-        sigma0_invert = np.linalg.inv(sigma_0)
+        sigma0_invert = np.linalg.matrix_power(sigma, -1)
+        #print(sigma_0)
+        #print(np.linalg.inv(sigma_0))
+        #print(sigma0_invert)
         transpose_mul_sigma0 = np.matmul(x_min_mu0.transpose(), x_min_mu0)
 
-        p_y_0 = probability_base_0 * np.e** ((-1/2) * np.matmul(transpose_mul_sigma0, sigma0_invert))
-
-        p_y_0 = np.sum(p_y_0)
+        p_y_0 = probability_base * np.exp((-1) * (1 / 2) * np.matmul(transpose_mul_sigma0, sigma0_invert))
 
         x_min_mu1 = np.subtract(x_val, mu_1_mean)
-        sigma1_invert = np.linalg.inv(sigma_1)
+        sigma1_invert = np.linalg.matrix_power(sigma, -1)
         transpose_mul_sigma1 = np.matmul(x_min_mu1.transpose(), x_min_mu1)
 
-        p_y_1 = probability_base_1 * np.e ** ((-1 / 2) * np.matmul(transpose_mul_sigma1, sigma1_invert))
+        #print(x_min_mu1.transpose())
+        #print(x_min_mu1)
+        #print(sigma1_invert)
 
-        p_y_1 = np.sum(p_y_1)
+        p_y_1 = probability_base * np.exp((-1) * (1 / 2) * np.matmul(transpose_mul_sigma1, sigma1_invert))
+        #print(p_y_1)
 
-
-        p_0 = (p_y_0 * 0.5)/(p_y_0 * 0.5) * (p_y_1 * 0.5)
+        p_0 = (p_y_0 * 0.5) / np.add((p_y_0 * 0.5), (p_y_1 * 0.5))
+        #print(' I: ' + str(i) + ' P_0 '  + str(p_0.flatten()[np.argmax(p_0)]))
+        p_0 = p_0.flatten()[np.argmax(p_0)]
+        #p_0 = np.sum(p_0)
         #print(p_0)
+        #print(p_y_0 * 0.5)
 
-        p_1 = (p_y_1 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
+        p_1 = (p_y_1 * 0.5) / np.add((p_y_0 * 0.5), (p_y_1 * 0.5))
+
+        #print(' I: ' + str(i) + ' P_1 '  + str(p_1.flatten()[np.argmax(p_1)]))
+        p_1 = p_1.flatten()[np.argmax(p_1)]
+        #p_1 = np.sum(p_1)
         #print(p_1)
+        #p_1 = p_1.flatten()[np.argmax(p_1)]
 
         if p_0 > p_1:
             print('Image ' + str(i) + ': no Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
         else:
             print('Image ' + str(i) + ': Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
 
-    for i in range(30):
-        x_val = np.zeros((1, 6))
-        x_val[0][0] = min_vals[1][i][0]
-        x_val[0][1] = min_vals[1][i][1]
-        x_val[0][2] = min_vals[1][i][2]
-        x_val[0][3] = avg_vals[1][i][0]
-        x_val[0][4] = avg_vals[1][i][1]
-        x_val[0][5] = avg_vals[1][i][2]
-
-        probability_base_0 = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante_0))
-        probability_base_1 = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante_1))
-
-        x_min_mu0 = np.subtract(x_val, mu_0_mean)
-        sigma0_invert = np.linalg.inv(sigma_0)
-        transpose_mul_sigma0 = np.matmul(x_min_mu0.transpose(), x_min_mu0)
-
-        p_y_0 = probability_base_0 * np.e ** ((-1 / 2) * np.matmul(transpose_mul_sigma0, sigma0_invert))
-
-        p_y_0 = np.sum(p_y_0)
-
-        x_min_mu1 = np.subtract(x_val, mu_1_mean)
-        sigma1_invert = np.linalg.inv(sigma_1)
-        transpose_mul_sigma1 = np.matmul(x_min_mu1.transpose(), x_min_mu1)
-
-        p_y_1 = probability_base_1 * np.e ** ((-1 / 2) * np.matmul(transpose_mul_sigma1, sigma1_invert))
-
-        p_y_1 = np.sum(p_y_1)
-
-        p_0 = (p_y_0 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
-        # print(p_0)
-
-        p_1 = (p_y_1 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
-        # print(p_1)
-
-        if p_0 > p_1:
-            print('Image ' + str(i) + ': no Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
-        else:
-            print('Image ' + str(i) + ': Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
-
-    #plot all
-    #fig, axs = plt.subplots(1)
-    #fig.savefig('graph.png')
-    #fig.show()
 
 
 
