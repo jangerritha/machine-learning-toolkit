@@ -115,10 +115,14 @@ def gaussian_discriminant():
     mu_0_mean = np.zeros(6)
 
     # execute SGD
+    #print(min_vals)
     min_mean_return = calculate_average_for_col(min_vals[0])
+    #print(min_mean_return)
     mu_0_mean[0:3] = min_mean_return
     avg_mean_return = calculate_average_for_col(avg_vals[0])
+    #print(avg_mean_return)
     mu_0_mean[3:6] = avg_mean_return
+    #print(mu_0_mean)
 
     #print(mu_0_mean)
 
@@ -163,8 +167,8 @@ def gaussian_discriminant():
     determinante_0 = np.linalg.det(sigma_0)
     determinante_1 = np.linalg.det(sigma_1)
 
-    #print(np.sqrt(determinante_0))
-    #print(np.sqrt(determinante_1))
+    print(np.sqrt(determinante_0))
+    print(np.sqrt(determinante_1))
 
     for i in range(30):
         x_val = np.zeros((1, 6))
@@ -175,17 +179,34 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[0][i][1]
         x_val[0][5] = avg_vals[0][i][2]
 
-        probability_base_0 = 1/((2 * np.pi)**3 * determinante_0 **(1/2))
-        probability_base_1 = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
+        probability_base_0 = 1/((2 * np.pi)**3 * np.sqrt(determinante_0))
+        probability_base_1 = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante_1))
 
-        p_y_0 = probability_base_0 * np.sum(np.e**(-1/2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-            np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
-        p_y_1 = probability_base_1 * np.sum(np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
-            np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
+        #print(probability_base_0)
+        #print(probability_base_1)
+
+        x_min_mu0 = np.subtract(x_val, mu_0_mean)
+        sigma0_invert = np.linalg.inv(sigma_0)
+        transpose_mul_sigma0 = np.matmul(x_min_mu0.transpose(), x_min_mu0)
+
+        p_y_0 = probability_base_0 * np.e** ((-1/2) * np.matmul(transpose_mul_sigma0, sigma0_invert))
+
+        p_y_0 = np.sum(p_y_0)
+
+        x_min_mu1 = np.subtract(x_val, mu_1_mean)
+        sigma1_invert = np.linalg.inv(sigma_1)
+        transpose_mul_sigma1 = np.matmul(x_min_mu1.transpose(), x_min_mu1)
+
+        p_y_1 = probability_base_1 * np.e ** ((-1 / 2) * np.matmul(transpose_mul_sigma1, sigma1_invert))
+
+        p_y_1 = np.sum(p_y_1)
+
 
         p_0 = (p_y_0 * 0.5)/(p_y_0 * 0.5) * (p_y_1 * 0.5)
+        #print(p_0)
 
         p_1 = (p_y_1 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
+        #print(p_1)
 
         if p_0 > p_1:
             print('Image ' + str(i) + ': no Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
@@ -201,25 +222,35 @@ def gaussian_discriminant():
         x_val[0][4] = avg_vals[1][i][1]
         x_val[0][5] = avg_vals[1][i][2]
 
-        probability_base_0 = 1 / ((2 * np.pi) ** 3 * determinante_0 ** (1 / 2))
-        probability_base_1 = 1 / ((2 * np.pi) ** 3 * determinante_1 ** (1 / 2))
+        probability_base_0 = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante_0))
+        probability_base_1 = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante_1))
 
-        p_y_0 = probability_base_0 * np.sum(
-                np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_0_mean).transpose(),
-                    np.subtract(x_val, mu_0_mean)), np.linalg.inv(sigma_0))))
-        p_y_1 = probability_base_1 * np.sum(
-                np.e ** (-1 / 2 * np.matmul(np.matmul(np.subtract(x_val, mu_1_mean).transpose(),
-                    np.subtract(x_val, mu_1_mean)), np.linalg.inv(sigma_1))))
+        x_min_mu0 = np.subtract(x_val, mu_0_mean)
+        sigma0_invert = np.linalg.inv(sigma_0)
+        transpose_mul_sigma0 = np.matmul(x_min_mu0.transpose(), x_min_mu0)
+
+        p_y_0 = probability_base_0 * np.e ** ((-1 / 2) * np.matmul(transpose_mul_sigma0, sigma0_invert))
+
+        p_y_0 = np.sum(p_y_0)
+
+        x_min_mu1 = np.subtract(x_val, mu_1_mean)
+        sigma1_invert = np.linalg.inv(sigma_1)
+        transpose_mul_sigma1 = np.matmul(x_min_mu1.transpose(), x_min_mu1)
+
+        p_y_1 = probability_base_1 * np.e ** ((-1 / 2) * np.matmul(transpose_mul_sigma1, sigma1_invert))
+
+        p_y_1 = np.sum(p_y_1)
 
         p_0 = (p_y_0 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
+        # print(p_0)
 
         p_1 = (p_y_1 * 0.5) / (p_y_0 * 0.5) * (p_y_1 * 0.5)
+        # print(p_1)
 
         if p_0 > p_1:
             print('Image ' + str(i) + ': no Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
         else:
             print('Image ' + str(i) + ': Parasite' + ' P=0:' + str(p_0) + ' P=1:' + str(p_1))
-        #print(probability)
 
     #plot all
     #fig, axs = plt.subplots(1)
