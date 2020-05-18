@@ -25,9 +25,7 @@ def calculate_min_values(data):
     for n_p in range(0,2):
         temp_n_p = np.zeros((30,3))
         for i in range(30):
-            temp_red  = np.zeros((24, 24))
-            temp_green = np.zeros((24, 24))
-            temp_blue = np.zeros((24, 24))
+            temp_red = temp_green = temp_blue = np.zeros((24, 24))
 
             for k in range(24):
                 for n in range(24):
@@ -47,9 +45,7 @@ def calculate_max_values(data):
     for n_p in range(0,2):
         temp_n_p = np.zeros((30,3))
         for i in range(30):
-            temp_red  = np.zeros((24, 24))
-            temp_green = np.zeros((24, 24))
-            temp_blue = np.zeros((24, 24))
+            temp_red = temp_green = temp_blue = np.zeros((24, 24))
 
             for k in range(24):
                 for n in range(24):
@@ -69,9 +65,7 @@ def calculate_avg_values(data):
     for n_p in range(0,2):
         temp_n_p = np.zeros((30,3))
         for i in range(30):
-            temp_red = np.zeros((24, 24))
-            temp_green = np.zeros((24, 24))
-            temp_blue = np.zeros((24, 24))
+            temp_red = temp_green = temp_blue = np.zeros((24, 24))
 
             for k in range(24):
                 for n in range(24):
@@ -87,15 +81,9 @@ def calculate_avg_values(data):
 
 
 def calculate_average_for_col(col):
-    col_1 = col_2 = col_3 = 0
-    for i in range(len(col[0])):
-        col_1 += col[0][i]
-        col_2 += col[1][i]
-        col_3 += col[2][i]
-
-    col_1 = col_1 / len(col[0])
-    col_2 = col_2 / len(col[0])
-    col_3 = col_3 / len(col[0])
+    col_1 = col[0].sum(axis=0) / len(col[0])
+    col_2 = col[1].sum(axis=0) / len(col[0])
+    col_3 = col[2].sum(axis=0) / len(col[0])
 
     return [col_1, col_2, col_3]
 
@@ -156,6 +144,7 @@ def gaussian_discriminant():
 
     #calculate temp vector
     tmp_vector_mu1 = []
+    tmp_vector_mu0 = []
 
     for i in range(30):
         f_0 = min_vals[1][i][0] - mu_1_mean[0]
@@ -169,9 +158,6 @@ def gaussian_discriminant():
         f_8 = max_vals[1][i][2] - mu_1_mean[8]
         tmp_vector_mu1.append([f_0, f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8])
 
-    tmp_vector_mu0 = []
-
-    for i in range(30):
         f_0 = min_vals[0][i][0] - mu_0_mean[0]
         f_1 = min_vals[0][i][1] - mu_0_mean[1]
         f_2 = min_vals[0][i][2] - mu_0_mean[2]
@@ -215,25 +201,14 @@ def gaussian_discriminant():
     for i in range(60):
         x_val = np.zeros((1, 9))
         if i < 30:
-            x_val[0][0] = min_vals[0][i][0]
-            x_val[0][1] = min_vals[0][i][1]
-            x_val[0][2] = min_vals[0][i][2]
-            x_val[0][3] = avg_vals[0][i][0]
-            x_val[0][4] = avg_vals[0][i][1]
-            x_val[0][5] = avg_vals[0][i][2]
-            x_val[0][6] = max_vals[0][i][0]
-            x_val[0][7] = max_vals[0][i][1]
-            x_val[0][8] = max_vals[0][i][2]
+            x_val[0][0:3] = min_vals[0][i]
+            x_val[0][3:6] = avg_vals[0][i]
+            x_val[0][6:9] = max_vals[0][i]
         else:
-            x_val[0][0] = min_vals[1][i - 30][0]
-            x_val[0][1] = min_vals[1][i - 30][1]
-            x_val[0][2] = min_vals[1][i - 30][2]
-            x_val[0][3] = avg_vals[1][i - 30][0]
-            x_val[0][4] = avg_vals[1][i - 30][1]
-            x_val[0][5] = avg_vals[1][i - 30][2]
-            x_val[0][6] = max_vals[1][i - 30][0]
-            x_val[0][7] = max_vals[1][i - 30][1]
-            x_val[0][8] = max_vals[1][i - 30][2]
+            x_val[0][0:3] = min_vals[1][i - 30]
+            x_val[0][3:6] = avg_vals[1][i - 30]
+            x_val[0][6:9] = max_vals[1][i - 30]
+
 
         probability_base = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante))
 
