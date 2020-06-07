@@ -20,6 +20,7 @@ def create_data():
         ret.append(temp_n_p)
     return ret
 
+
 def create_gray():
     ret = []
     strn_p = ["negatives", "positives", 'n', 'p']
@@ -31,8 +32,10 @@ def create_gray():
             if i < 9:
                 path += '0'
             temp_n_p.append(color.rgb2gray(imread(path + str(i + 1) + '.png')))
+            #print(temp_n_p)
         ret.append(temp_n_p)
-    #print(ret)
+        #print(ret)
+    return ret
 
 
 def calculate_min_values(data):
@@ -57,6 +60,7 @@ def calculate_min_values(data):
 
     return ret
 
+
 def calculate_max_values(data):
     ret = []
 
@@ -78,6 +82,7 @@ def calculate_max_values(data):
         ret.append(temp_n_p)
 
     return ret
+
 
 def calculate_avg_values(data):
     ret = []
@@ -101,20 +106,22 @@ def calculate_avg_values(data):
 
     return ret
 
+
 def calculate_gray_values(data):
     ret = []
 
-    for n_p in range(0,2):
-        temp_n_p = np.zeros((30,3))
+    for n in range(2):
+        temp_n_p = np.zeros((30, 3))
         for i in range(30):
-            temp_n_p[i][0] = min(data[i].flatten())
-            temp_n_p[i][1] = sum(data[i].flatten()) / len(data[i].flatten())
-            temp_n_p[i][2] = max(data[i].flatten())
+            #print(len(data[0]))
+            temp_n_p[i][0] = min(data[n][i].flatten())
+            temp_n_p[i][1] = sum(data[n][i].flatten()) / len(data[n][i].flatten())
+            temp_n_p[i][2] = max(data[n][i].flatten())
 
         ret.append(temp_n_p)
 
+    #print(len(ret[1][0]))
     return ret
-
 
 
 def calculate_average_for_col(col):
@@ -141,7 +148,11 @@ def gaussian_discriminant():
     # create data as 24x24x3 matrixes from images
     data = create_data()
 
-    #gray_data = create_gray()
+    gray_data = create_gray()
+
+    #print(gray_data[0])
+    #print('---------------------------------------')
+    #print(gray_data[1])
 
     #calculate min rgb values for every image
     min_vals = calculate_min_values(data)
@@ -151,7 +162,12 @@ def gaussian_discriminant():
 
     max_vals = calculate_max_values(data)
 
-    #gray_vals = calculate_gray_values(gray_data)
+    #gray_data  = gray_data[0][0]
+
+    #print(str(gray_data))
+    gray_vals = calculate_gray_values(gray_data)
+
+    #print(str(gray_vals))
 
     # ----------------- calculate parameters ----------------------
     #calculate phi
@@ -159,7 +175,7 @@ def gaussian_discriminant():
     phi = 30/m
 
     #calculate mu_1 for positive (1)
-    mu_1_mean = np.zeros(9)
+    mu_1_mean = np.zeros(12)
 
     #execute SGD
     min_mean_return = calculate_average_for_col(min_vals[1])
@@ -168,11 +184,15 @@ def gaussian_discriminant():
     mu_1_mean[3:6] = avg_mean_return
     max_mean_return = calculate_average_for_col(avg_vals[1])
     mu_1_mean[6:9] = max_mean_return
+    #print(max_mean_return)
+    gray_val_return = calculate_average_for_col(gray_vals[1])
+    #print(gray_val_return)
+    mu_1_mean[9:12] = gray_val_return
 
     #print(mu_1_mean)
 
     # calculate mu_0 for negative (0)
-    mu_0_mean = np.zeros(9)
+    mu_0_mean = np.zeros(12)
 
     # execute SGD
     #print(min_vals)
@@ -185,6 +205,8 @@ def gaussian_discriminant():
     #print(mu_0_mean)
     max_mean_return = calculate_average_for_col(avg_vals[0])
     mu_0_mean[6:9] = max_mean_return
+    gray_val_return = calculate_average_for_col(gray_vals[0])
+    mu_0_mean[9:12] = gray_val_return
 
     #print(mu_0_mean)
 
@@ -202,7 +224,10 @@ def gaussian_discriminant():
         f_6 = max_vals[1][i][0] - mu_1_mean[6]
         f_7 = max_vals[1][i][1] - mu_1_mean[7]
         f_8 = max_vals[1][i][2] - mu_1_mean[8]
-        tmp_vector_mu1.append([f_0, f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8])
+        f_9 = gray_vals[1][i][0] - mu_1_mean[9]
+        f_10 = gray_vals[1][i][1] - mu_1_mean[10]
+        f_11 = gray_vals[1][i][2] - mu_1_mean[11]
+        tmp_vector_mu1.append([f_0, f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8, f_9, f_10, f_11])
 
     tmp_vector_mu0 = []
 
@@ -216,10 +241,13 @@ def gaussian_discriminant():
         f_6 = max_vals[0][i][0] - mu_0_mean[6]
         f_7 = max_vals[0][i][1] - mu_0_mean[7]
         f_8 = max_vals[0][i][2] - mu_0_mean[8]
-        tmp_vector_mu0.append([f_0, f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8])
+        f_9 = gray_vals[0][i][0] - mu_0_mean[9]
+        f_10 = gray_vals[0][i][1] - mu_0_mean[10]
+        f_11 = gray_vals[0][i][2] - mu_0_mean[11]
+        tmp_vector_mu0.append([f_0, f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8, f_9, f_10, f_11])
 
-    #print(str(tmp_vector[0]))
-    #print(str(tmp_vector[0].transpose(0)))
+    #print(str(tmp_vector_mu0))
+    #print(str(tmp_vector_mu0.transpose(0)))
 
 
     #critical ----
@@ -231,9 +259,11 @@ def gaussian_discriminant():
         #print('print' + str(i) + str(np.reshape(tmp_vector_mu1[i], (1,6)).transpose()))
         #print('print' + str(i) + str(np.matmul(np.reshape(tmp_vector_mu1[i], (1, 6)).transpose(), np.reshape(tmp_vector_mu1[i], (1, 6)))))
         if i < 30:
-            sigma += (1/m) * np.matmul(np.reshape(tmp_vector_mu1[i], (1, 9)).transpose(), np.reshape(tmp_vector_mu1[i], (1, 9)))
+            sigma += (1/m) * np.matmul(np.reshape(tmp_vector_mu1[i], (1, 12)).transpose(), np.reshape(tmp_vector_mu1[i], (1, 12)))
         else:
-            sigma += (1 / m) * np.matmul(np.reshape(tmp_vector_mu0[i - 30], (1, 9)).transpose(), np.reshape(tmp_vector_mu0[i - 30], (1, 9)))
+            sigma += (1 / m) * np.matmul(np.reshape(tmp_vector_mu0[i - 30], (1, 12)).transpose(), np.reshape(tmp_vector_mu0[i - 30], (1, 12)))
+
+    #print(sigma)
 
     #for i in range(30):
         #sigma_0 += (1/m) * np.matmul(np.reshape(tmp_vector_mu0[i], (1, 6)).transpose(), np.reshape(tmp_vector_mu0[i], (1, 6)))
@@ -241,7 +271,7 @@ def gaussian_discriminant():
     #print(str(sigma_0))
     #print(str(sigma_1))
 
-    print(a2l.to_ltx(mu_1_mean, frmt = '{:6.2f}', arraytype = 'array'))
+    #print(a2l.to_ltx(mu_1_mean, frmt = '{:6.2f}', arraytype = 'array'))
 
     determinante = np.linalg.det(sigma)
     #determinante_1 = np.linalg.det(sigma_1)
@@ -250,7 +280,7 @@ def gaussian_discriminant():
     #print(np.sqrt(determinante_1))
 
     for i in range(60):
-        x_val = np.zeros((1, 9))
+        x_val = np.zeros((1, 12))
         if i < 30:
             x_val[0][0] = min_vals[0][i][0]
             x_val[0][1] = min_vals[0][i][1]
@@ -261,6 +291,11 @@ def gaussian_discriminant():
             x_val[0][6] = max_vals[0][i][0]
             x_val[0][7] = max_vals[0][i][1]
             x_val[0][8] = max_vals[0][i][2]
+            #print(max_vals[0][i][2])
+            x_val[0][9] = gray_vals[0][i][0]
+            #print(gray_vals[0][i][0])
+            x_val[0][10] = gray_vals[0][i][1]
+            x_val[0][11] = gray_vals[0][i][2]
         else:
             x_val[0][0] = min_vals[1][i - 30][0]
             x_val[0][1] = min_vals[1][i - 30][1]
@@ -271,17 +306,23 @@ def gaussian_discriminant():
             x_val[0][6] = max_vals[1][i - 30][0]
             x_val[0][7] = max_vals[1][i - 30][1]
             x_val[0][8] = max_vals[1][i - 30][2]
+            x_val[0][9] = gray_vals[1][i - 30][0]
+            x_val[0][10] = gray_vals[1][i - 30][1]
+            x_val[0][11] = gray_vals[1][i - 30][2]
 
         probability_base = 1 / ((2 * np.pi) ** 3 * np.sqrt(determinante))
 
-
+        #print(x_val)
 
         x_min_mu0 = np.subtract(x_val, mu_0_mean)
+        #print(x_min_mu0)
         sigma0_invert = np.linalg.matrix_power(sigma, -1)
         #print(sigma_0)
         #print(np.linalg.inv(sigma_0))
         #print(sigma0_invert)
         transpose_mul_sigma0 = np.matmul(x_min_mu0.transpose(), x_min_mu0)
+        #print(transpose_mul_sigma0)
+        #print(probability_base * np.exp((-1) * (1 / 2) * np.matmul(transpose_mul_sigma0, sigma0_invert)))
 
         p_y_0 = probability_base * np.exp((-1) * (1 / 2) * np.matmul(transpose_mul_sigma0, sigma0_invert))
 
@@ -289,7 +330,8 @@ def gaussian_discriminant():
         sigma1_invert = np.linalg.matrix_power(sigma, -1)
         transpose_mul_sigma1 = np.matmul(x_min_mu1.transpose(), x_min_mu1)
 
-        #print(x_min_mu1.transpose())
+        #print(probability_base * np.exp(np.matmul(transpose_mul_sigma1, sigma1_invert)))
+        #print(np.exp(np.matmul(transpose_mul_sigma1, sigma1_invert)))
         #print(x_min_mu1)
         #print(sigma1_invert)
 
@@ -297,6 +339,8 @@ def gaussian_discriminant():
         #print(p_y_1)
 
         p_0 = (p_y_0 * 0.5) / np.add((p_y_0 * 0.5), (p_y_1 * 0.5))
+
+        #print(p_0)
 
         p_0 = p_0.flatten()[np.argmax(p_0.flatten())]
 
