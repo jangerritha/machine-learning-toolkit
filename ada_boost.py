@@ -36,20 +36,20 @@ def visualize(positives, negatives):
 def validate_classifier(points, classifier):
     error_count = 0
     for pair in points:
-        if classifier[0]:
-            if pair[1] < classifier[1] and pair[2] == 1.0:
+        if classifier[0]:                  #horizontal line
+            if pair[1] < classifier[1] and pair[2] == 1.0:  #y-coordinate lower than line and label true
                 error_count += 1
-            if pair[1] >= classifier[1] and pair[2] == -1.0:
+            if pair[1] >= classifier[1] and pair[2] == -1.0:#y-coordinate higher than line and label false
                 error_count += 1
-        else:
-            if pair[0] < classifier[1] and pair[2] == 1.0:
+        else:                               #vertical line
+            if pair[0] < classifier[1] and pair[2] == 1.0: #x on left side of line and label true
                 error_count += 1
-            if pair[0] >= classifier[1] and pair[2] == -1.0:
+            if pair[0] >= classifier[1] and pair[2] == -1.0: #x on right side of line and label false
                 error_count += 1
 
-    epsilon = 1/len(points) * error_count
+    epsilon = 1/len(points) * error_count #calculate mean
 
-    if epsilon > 0.5:
+    if epsilon > 0.5:  #flip if error > 0.5
         classifier[2] = True
         epsilon = 1 - epsilon
 
@@ -66,7 +66,8 @@ def create_classifier():
     if rnd_number < 0.5:
         horizontal = False
 
-    location = rnd.uniform(-10.0, 10.0)
+    location = rnd.uniform(-10.0, 10.0) #Todo: step size
+    #print(location)
     flipped = False
     return [horizontal, location, flipped, 0.0]
 
@@ -76,14 +77,14 @@ def predict_weak(x, y, classifier):
     if classifier[0]: #horizontal line
         if classifier[2] and y <= classifier[1]: #classifier was flipped
             result = 1
-        elif y >= classifier[1]: #classifier was not flipped
+        elif not classifier[2] and y >= classifier[1]: #classifier was not flipped
             result = 1
         else:
             result = -1
     else:
         if classifier[2] and x <= classifier[1]:  # classifier was flipped
             result = 1
-        elif x >= classifier[1]:  # classifier was not flipped
+        elif not classifier[2] and x >= classifier[1]:  # classifier was not flipped
             result = 1
         else:
             result = -1
@@ -96,63 +97,48 @@ def predict_strict(weak_classifiers, x, y):
     for classifier in weak_classifiers:
         alpha = classifier[3]
         result_dirty += alpha * predict_weak(x, y, classifier)
+        #print(result_dirty)
+        #print(classifier)
     return np.sign(result_dirty)
 
 
 def compute_weighted_error_for_distribution(distibution, classifier, points):
     sigma = 0
+
     for (e, point) in enumerate(points):
         prediction = predict_weak(point[0], point[1], classifier)
         weight = distibution[e]
         if not prediction == point[2]:
-            #print('bullet0')
             sigma += weight * 1
 
     return sigma
 
 
-def train(distributions, weak_classifiers, points):
-    #Calculate epsilon for every weak classifier
-    error_per_classifier = []
-    for (e, classifier) in enumerate(weak_classifiers):
-        distribution = distributions[e]
-        weighted_epsilon = compute_weighted_error_for_distribution(distribution, classifier, points)
-        error_per_classifier.append(weighted_epsilon)
-
-    #find best weak classifier
-    best_epsilon_arg = np.argmin(error_per_classifier)
-    best_epsilon = error_per_classifier[best_epsilon_arg]
-
-    #calculate alpha
-    alpha = (1 / 2) * math.log((1 - best_epsilon) / best_epsilon)
-    print('Lowest Epsilon: ' + str(best_epsilon) + ', Best Alpha: ' + str(alpha))
-
-    #Set Alpha to make strong hypothesis
-    weak_classifiers[best_epsilon_arg][3] = alpha
-
-    #Create next distribution D_t+1
-    next_distribution = update_distribution(distributions[best_epsilon_arg]
-                                            , points, alpha, best_epsilon, weak_classifiers[best_epsilon_arg])
-    distributions.append(next_distribution)
-
-
-def update_distribution(distribution, points, alpha, epsilon, classifier):
-    next_distribution = distribution
+def update_distribution(distribution, points, alpha, classifier):
+    temp_sum = 0
     for (e, point) in enumerate(points):
         #print(next_distribution)
-        z = 1 / (2 * np.sqrt(epsilon * (1 - epsilon)))
-        next_distribution[e] = \
-            z * next_distribution[e] * \
-            np.exp(-alpha * point[2] * predict_weak(point[0], point[1], classifier))
-    return next_distribution
+        distribution[e] = distribution[e] * \
+                               np.exp(-alpha * point[2] * predict_weak(point[0], point[1], classifier))
+        temp_sum += distribution[e]
+
+    for field in distribution:
+        field *= (1/temp_sum)
+    return distribution
 
 
 def evaluate(points, weak_classifiers):
     correct_classified = 0
-    for point in points:
+    for (e, point) in enumerate(points):
         result = predict_strict(weak_classifiers, point[0], point[1])
+        #print(result)
         if result == point[2]:
+            #if e % 5 == 0:
+                #print('Correct: ' + str(result) + ' ' + str(point[2]))
             correct_classified += 1
+        #else:
+           # if e % 2 == 0:
+                #print('False: ' + str(result) + ' ' + str(point[2]))
 
     print('Accuracy: ' + str(correct_classified / len(points)) + '%, Total: ' + str(correct_classified) + ' of ' + str(len(points)))
 
@@ -162,28 +148,37 @@ def ada_boost():
     weak_classifiers = []
     distributions = []
     distributions.append([p[3] for p in points])
-    #distribution = distribution[0]
+    distribution = distributions[0]
 
-    #print(points)
-    #print(points)
-    for i in range(500):
+    for i in range(75):
         print('Iteration: ' + str(i))
 
-        #Create classifier
-        classifier = create_classifier()
+        pool = []
+        errors = []
+        #Create classifier pool
+        for n in range(100):
+            classifier = create_classifier()
+            err = validate_classifier(points, classifier)
+            if err is None:
+                while (err is None):
+                    classifier = create_classifier()
+                    err = validate_classifier(points, classifier)
+            pool.append(classifier)
 
-        #calculate Epsilon
-        epsilon = validate_classifier(points, classifier)
-        if epsilon is None:
-            while(epsilon is None):
-                classifier = create_classifier()
-                epsilon = validate_classifier(points, classifier)
+        for classifier in pool:
+            epsilon = compute_weighted_error_for_distribution(distribution, classifier, points)
+            errors.append(epsilon)
 
-        weak_classifiers.append(classifier)
+        error_array = np.asarray(errors)
+        lowest_error_index = np.argmin(error_array)
+        best_classifier = pool[lowest_error_index]
+        best_epsilon = error_array[lowest_error_index]
+        alpha = (1 / 2) * math.log((1 - best_epsilon) / best_epsilon)
+        best_classifier[3] = alpha
 
-        train(distributions, weak_classifiers, points)
-        print(weak_classifiers)
-        print(distributions)
+        distribution = update_distribution(distribution, points, alpha, best_classifier)
+
+        weak_classifiers.append(best_classifier)
         evaluate(points, weak_classifiers)
 
     #print('bullet1: ' + str(weak_classifiers))
