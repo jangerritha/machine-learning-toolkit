@@ -16,7 +16,8 @@ def read_points():
     return points
 
 
-def visualize(positives, negatives):
+def visualize(positives, negatives, weak_classifiers):
+    #-----plot_points-----
     positives_plot = np.zeros((2, 40))
     negatives_plot = np.zeros((2, 62))
     for (e, entry) in enumerate(positives):
@@ -25,12 +26,52 @@ def visualize(positives, negatives):
     for (e, entry) in enumerate(negatives):
         negatives_plot[0][e] = entry[0]
         negatives_plot[1][e] = entry[1]
-    # plot all
+
     fig, axs = plt.subplots(1)
+
+    #------plot horizontal and vertical classifiers---------
+    alpha = [c[3] for c in weak_classifiers]
+    alpha_arg = np.argmax(alpha)
+    normalize_alpha = 1/alpha[alpha_arg]
+    for i in range(len(alpha)):
+        alpha[i] *= normalize_alpha
+
+    for (e, classifier) in enumerate(weak_classifiers):
+        color = color_picker(alpha[e])
+        if classifier[0]:
+            plt.hlines(classifier[1], xmax=10.0, xmin=-10.0, colors=color)
+        else:
+            plt.vlines(classifier[1], ymax=10.0, ymin=-10.0, colors=color)
+
+
+    #---plot all-----
     axs.scatter(positives_plot[0], positives_plot[1], color='green')
     axs.scatter(negatives_plot[0], negatives_plot[1], color='red')
     fig.savefig('graph.png')
     fig.show()
+
+
+def color_picker(alpha):
+    #if alpha <= 0.1:
+        #return 'snow'
+    #if alpha <= 0.2:
+        #return 'white'
+    if alpha <= 0.3:
+        return 'gainsboro'
+    #if alpha <= 0.4:
+        #return 'gainsboro'
+    if alpha <= 0.5:
+        return 'lightgray'
+    if alpha <= 0.6:
+        return 'silver'
+    if alpha <= 0.7:
+        return 'darkgray'
+    if alpha <= 0.8:
+        return 'grey'
+    if alpha <= 0.9:
+        return 'dimgray'
+    if alpha <= 1.0:
+        return 'black'
 
 
 def validate_classifier(points, classifier):
@@ -181,12 +222,11 @@ def ada_boost():
         weak_classifiers.append(best_classifier)
         evaluate(points, weak_classifiers)
 
-    #print('bullet1: ' + str(weak_classifiers))
     evaluate(points, weak_classifiers)
 
     positives = points[0:40]
     negatives = points[41:102]
-    visualize(positives, negatives)
+    visualize(positives, negatives, weak_classifiers)
 
 
 if __name__ == '__main__':
