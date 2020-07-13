@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random as rnd
 import math
+import array_to_latex as a2l
 
 
 def read_points():
@@ -49,17 +50,19 @@ def visualize(positives, negatives, weak_classifiers):
     axs.scatter(negatives_plot[0], negatives_plot[1], color='red')
     fig.savefig('graph.png')
     fig.show()
+    latex_array = np.array(weak_classifiers)
+    print(a2l.to_ltx(latex_array, frmt='{:6.2f}', arraytype='array'))
 
 
 def color_picker(alpha):
-    #if alpha <= 0.1:
-        #return 'snow'
-    #if alpha <= 0.2:
-        #return 'white'
+    if alpha <= 0.1:
+        return 'snow'
+    if alpha <= 0.2:
+        return 'white'
     if alpha <= 0.3:
+        return 'whitesmoke'
+    if alpha <= 0.4:
         return 'gainsboro'
-    #if alpha <= 0.4:
-        #return 'gainsboro'
     if alpha <= 0.5:
         return 'lightgray'
     if alpha <= 0.6:
@@ -181,7 +184,7 @@ def evaluate(points, weak_classifiers):
            # if e % 2 == 0:
                 #print('False: ' + str(result) + ' ' + str(point[2]))
 
-    print('Accuracy: ' + str(correct_classified / len(points)) + '%, Total: ' + str(correct_classified) + ' of ' + str(len(points)))
+    print('Accuracy: ' + str(100 * correct_classified / len(points)) + '%, Total: ' + str(correct_classified) + ' of ' + str(len(points)))
 
 
 def ada_boost():
