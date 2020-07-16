@@ -10,7 +10,7 @@ def calculate_distance(point_1, point_2):
     return np.sqrt((point_2[0] - point_1[0])**2 + (point_2[1] - point_1[1])**2)
 
 
-def main(gaussians):
+def execute(gaussians):
     #initialize centroids with random samples from gauss functions
     centroids = np.zeros((3, 2))
     for n in range(3):
@@ -19,7 +19,7 @@ def main(gaussians):
         centroids[n][0] = gaussians[n][0][random_sample]
         centroids[n][1] = gaussians[n][1][random_sample]
 
-    for i in range(5000):
+    for i in range(2000):
         for n in range(100):
             for j in range(3):
                 results = []
@@ -43,7 +43,9 @@ def main(gaussians):
             centroids[k][0] = sum_up[0] / len(centroid_clusters[k])
             centroids[k][1] = sum_up[1] / len(centroid_clusters[k])
 
-    return centroid_clusters, centroids
+    print(centroids)
+
+    return centroid_clusters, centroids, gaussians
 
 
 
